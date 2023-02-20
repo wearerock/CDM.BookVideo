@@ -14,7 +14,7 @@ namespace CDM.BookVideo.Application.BusinessRules {
     public void Apply(Order order) {
       if (order.Products.Any()) {
         Console.WriteLine("Senting signal to Shippment...");
-        _eventBus.Publish(new OrderPurchasedEvent(order.OrderId, order.Total, order.CunsomerId, order.Products));
+        _eventBus.Publish(new OrderPurchasedEvent(order.OrderId, order.Total, order.CustomerId, order.Products));
       }
     }
   }

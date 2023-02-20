@@ -15,7 +15,7 @@ namespace CDM.BookVideo.Application.Commands {
 
     public async Task<CreateOrderCommandResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken) {
       var order = new Order() {
-        CunsomerId = command.CustomerId,
+        CustomerId = command.CustomerId,
         Total = command.Total,
         Products = command.Items.Select(x => new Product() { Details = x }).ToList()
       };
@@ -25,7 +25,7 @@ namespace CDM.BookVideo.Application.Commands {
       var rule = _ruleFactory.GetBusinessRule();
       rule.Apply(order);
 
-      return new CreateOrderCommandResult(order.OrderId, order.CunsomerId, order.Total, order.Products);
+      return new CreateOrderCommandResult(order.OrderId, order.CustomerId, order.Total, order.Products);
     }
   }
 }

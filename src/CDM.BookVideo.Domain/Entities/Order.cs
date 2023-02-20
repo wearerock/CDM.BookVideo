@@ -7,7 +7,7 @@ namespace CDM.BookVideo.Domain.Entities {
     [Required]
     public decimal Total { get; set; }
     [Required]
-    public int CunsomerId { get; set; }
+    public int CustomerId { get; set; }
     public List<Product> Products { get; set; }
   }
 }

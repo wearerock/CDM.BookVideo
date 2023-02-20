@@ -18,13 +18,13 @@ namespace CDM.BookVideo.Application.Commands.Update {
       }
 
       order.Total = command.Total;
-      order.CunsomerId = command.CutomerId;
+      order.CustomerId = command.CutomerId;
       order.Products = command.Products.Select(x => new Product() { Details = x }).ToList();
       await _repo.UpdateAsync(order);
 
       // todo: Remove old products
 
-      return new UpdateOrderCommandResult(order.OrderId, order.CunsomerId, order.Total, order.Products);
+      return new UpdateOrderCommandResult(order.OrderId, order.CustomerId, order.Total, order.Products);
     }
   }
 }

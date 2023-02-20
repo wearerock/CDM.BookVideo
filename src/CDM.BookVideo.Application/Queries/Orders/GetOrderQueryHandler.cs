@@ -11,7 +11,7 @@ namespace CDM.BookVideo.Application.Queries.Orders {
 
     public async Task<GetOrderQueryResult> Handle(GetOrderQuery query, CancellationToken cancellationToken) {
       var order = await _repo.GetByIdAsync(query.OrderId);
-      return new GetOrderQueryResult(order.OrderId, order.CunsomerId, order.Total, order.Products);
+      return new GetOrderQueryResult(order.OrderId, order.CustomerId, order.Total, order.Products);
     }
   }
 }
