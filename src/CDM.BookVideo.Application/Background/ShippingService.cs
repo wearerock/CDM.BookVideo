@@ -1,5 +1,9 @@
 ﻿using System.Text;
+using System.Text.Json;
+using CDM.BookVideo.Application.Events;
+using CDM.BookVideo.Application.Events.EventHandling;
 using CDM.BookVideo.EventBus;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
@@ -7,15 +11,17 @@ using RabbitMQ.Client.Events;
 
 namespace CDM.BookVideo.Application.Background {
   public class ShippingService : BackgroundService {
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IEventBusConnection _connection;
     private readonly ILogger<ShippingService> _logger;
     private IModel _consumerChannel;
     const string BROKER_NAME = "shipping_event_bus";
     private string _queueName = "Shipping";
 
-    public ShippingService(IEventBusConnection eventBusConnection, ILogger<ShippingService> logger) {
-      _connection = eventBusConnection;
-      _logger = logger;
+    public ShippingService(IServiceScopeFactory scopeFactory, IEventBusConnection connection, ILogger<ShippingService> logger) {
+      _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+      _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+      _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) {
@@ -52,16 +58,7 @@ namespace CDM.BookVideo.Application.Background {
     private void StartBasicConsume() {
       if (_consumerChannel != null) {
         var consumer = new AsyncEventingBasicConsumer(_consumerChannel);
-        consumer.Received += (ModuleHandle, ea) => {
-          Console.WriteLine($"--> Event recieved!");
-
-          var body = ea.Body;
-          var notificationMessage = Encoding.UTF8.GetString(body.ToArray());
-
-          ProcessMessage(ModuleHandle, ea);
-
-          return Task.CompletedTask;
-        };
+        consumer.Received += ProcessMessage;
 
         _consumerChannel.BasicConsume(_queueName, false, consumer);
       }
@@ -74,18 +71,10 @@ namespace CDM.BookVideo.Application.Background {
       var msg = Encoding.UTF8.GetString(@event.Body.Span);
 
       try {
-        //if (_handlers.TryGetValue(@event.RoutingKey, out var handlers)) {
-        //  using var scope = _scopeFactory.CreateScope();
-        //  Parallel.ForEach(handlers, async (handlerType) => {
-        //    var handler = scope.ServiceProvider.GetService(handlerType);
-        //    var eventType = _events.SingleOrDefault(x => x.Name == @event.RoutingKey);
-        //    if (handler != null && eventType != null) {
-        //      var intEvent = JsonSerializer.Deserialize(msg, eventType, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-        //      var instance = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
-        //      await (Task)instance.GetMethod("Handle").Invoke(handler, new object[] { intEvent });
-        //    }
-        //  });
-        //}
+        using var scope = _scopeFactory.CreateScope();
+        var handler = scope.ServiceProvider.GetService<OrderPurchasedEventHandler>();
+        var intEvent = JsonSerializer.Deserialize<OrderPurchasedEvent>(msg, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+        await handler.Handle(intEvent);
       }
       catch (Exception ex) {
         _logger.LogError("Error to process event witn message {Message}", msg);
