@@ -1,4 +1,5 @@
 using System.Reflection;
+using CDM.BookVideo.API.Extensions;
 using CDM.BookVideo.Application.BusinessRules;
 using CDM.BookVideo.Application.Commands;
 using CDM.BookVideo.Application.Commands.Update;
@@ -71,5 +72,7 @@ void ConfigureEventBus(IApplicationBuilder app) {
   var bus = app.ApplicationServices.GetRequiredService<IEventBus>();
   bus.Subscribe<OrderPurchasedEvent, OrderPurchasedEventHandler>();
 }
+
+app.UseCustomExceptionHandler();
 
 app.Run();

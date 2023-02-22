@@ -1,5 +1,6 @@
 ﻿using CDM.BookVideo.Application.Interfaces;
 using CDM.BookVideo.Domain.Entities;
+using CDM.BookVideo.Domain.Exceptions;
 using MediatR;
 
 namespace CDM.BookVideo.Application.Commands.Update {
@@ -14,7 +15,7 @@ namespace CDM.BookVideo.Application.Commands.Update {
       var order = await _repo.GetByIdAsync(command.OrderId);
 
       if (order == null) {
-        throw new Exception(); // todo: introduce business exception
+        throw new OrderNotFoundException($"Order with ID {command.OrderId} is not found");
       }
 
       order.Total = command.Total;
@@ -22,7 +23,6 @@ namespace CDM.BookVideo.Application.Commands.Update {
       order.Products = command.Products.Select(x => new Product() { Details = x }).ToList();
       await _repo.UpdateAsync(order);
 
-      // todo: Remove old products
 
       return new UpdateOrderCommandResult(order.OrderId, order.CustomerId, order.Total, order.Products);
     }
