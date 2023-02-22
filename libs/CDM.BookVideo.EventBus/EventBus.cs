@@ -100,7 +100,7 @@ namespace CDM.BookVideo.EventBus {
       if (!_connection.IsConnected) _connection.TryConnect();
 
       var model = _connection.CreateModel();
-      model.ExchangeDeclare(exchange: BROKER_NAME, type: "direct");
+      model.ExchangeDeclare(exchange: BROKER_NAME, type: ExchangeType.Direct);
       model.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
       model.CallbackException += (sender, ea) => {

@@ -1,5 +1,6 @@
 using System.Reflection;
 using CDM.BookVideo.API.Extensions;
+using CDM.BookVideo.Application.Background;
 using CDM.BookVideo.Application.BusinessRules;
 using CDM.BookVideo.Application.Commands;
 using CDM.BookVideo.Application.Commands.Update;
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IRequestHandler<GetAllOrdersQuery, List<GetOrderQuery
 builder.Services.AddScoped<IRequestHandler<GetOrderQuery, GetOrderQueryResult>, GetOrderQueryHandler>();
 builder.Services.AddTransient<OrderPurchasedEventHandler>();
 builder.Services.AddEventBus(builder.Configuration);
+builder.Services.AddHostedService<ShippingService>();
 
 builder.Services.AddSwaggerGen(c => {
   c.SwaggerDoc("v1", new OpenApiInfo {
