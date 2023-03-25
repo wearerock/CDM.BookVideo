@@ -20,7 +20,7 @@ namespace CDM.BookVideo.Tests.Rules {
         new Product { ProductId = 1, Details = "Garry Potter" }, new Product { ProductId = 1, Details = "Book membership" }, new Product { ProductId = 1, Details = "Book membership" } } };
 
       // Act
-      _rule.Apply(order);
+      _rule.Apply(order); //Fix tests
 
       // Assert
       _eventBusMock.Verify(x => x.Publish(It.IsAny<OrderPurchasedEvent>()), Times.Once);
